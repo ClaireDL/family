@@ -3,25 +3,27 @@ package com.clairedl.scala
 object Main extends App {
   abstract class FamilyTree(members: List[Person])
 
-  case class Person(name: String, gender: String) {
-    def hasChildren(otherParent: Person, children: List[Person]): String = {
-      s"$name has ${children.length} children with ${otherParent.name}."
+  case class Person(name: String) {
+    def parents(mother: Person, father: Person): String = {
+      s"${mother.name} and ${father.name} are $name's parents."
     }
+    var siblings: List[Person] = List()
 
-    def hasMother(mother: Person): String = s"$name's mother is ${mother.name}"
-    def hasFather(father: Person): String = s"$name's father is ${father.name}"
-
-    def hasSiblings: String = {
-
+    def hasChildren(children: List[Person]): Unit = {
+      for (child <- children) {
+        val childSiblings = children.filter(x => x != child)
+        child.siblings = childSiblings
       }
-
     }
   }
 
-  val gerard = Person("Gerard", "male")
-  val genevieve = Person("Genevieve", "female")
-  val ce = Person("Ce", "female")
-  val cl = Person("Cl", "female")
-  val jd = Person("JD", "male")
-  println(gerard.hasChildren(genevieve, List(ce, cl, jd)))
+
+  val gerard = Person("Gerard")
+  val genevieve = Person("Genevieve")
+  val ce = Person("ce")
+  val cl = Person("cl")
+  val jd = Person("jd")
+  println(gerard.hasChildren(List(ce, cl, jd)))
+  println(ce.siblings)
+  println(gerard.siblings)
 }
