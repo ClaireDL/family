@@ -3,61 +3,51 @@ package com.clairedl.scala
 import scala.collection.mutable.ListBuffer
 
 object Main extends App {
-  abstract class FamilyTree(members: List[Person])
 
-  case class Person(name: String) {
-    def parents(mother: Person, father: Person): String = {
-      s"${mother.name} and ${father.name} are $name's parents."
+  case class Person(name: String, mother: Person, father: Person) {
+    var children: ListBuffer[Person] = new ListBuffer[Person]()
+
+    var siblings: ListBuffer[Person] = {
+      var sib = new ListBuffer[Person]()
+      // if ( mother.children.nonEmpty ) {
+      //   println(s"mother has children")
+      // }
+      sib
     }
 
-    var siblings: List[Person] = List()
-
-    var children: List[Person] = List()
-
-    def hasChildren(c: List[Person]): List[Person] = {
-      for (child <- c) {
+    def hasChildren(otherParent: Person, c: List[Person]): List[Person] = {
+      for ( child <- c ) {
         val childSiblings = c.filter(x => x != child)
-        child.siblings = childSiblings
+        childSiblings.foreach(child.siblings += _)
+        children += child
+        otherParent.children += child
       }
-      children = c
       c
     }
 
-    def grandchildren: List[Person] = {
-      var g = ListBuffer[Person]()
-      for {
-        child <- children
-        grandchild <- child.children
-      } g += grandchild
-      g.toList
+    var cousins: ListBuffer[Person] = {
+      new ListBuffer[Person]()
+
     }
-
-    // def cousin: List[Person] = {
-
-    // }
   }
 
-  val gerard = Person("Gerard")
-  val genevieve = Person("Genevieve")
-  val ce = Person("celine")
-  val mael = Person("Mael")
-  val loick = Person("Loick")
-  ce.hasChildren(List(mael, loick))
-  val cl = Person("claire")
-  val jd = Person("jean-do")
-  val olivia = Person("Olivia")
-  val andre =  Person("Andre")
-  jd.hasChildren(List(olivia, andre))
-  gerard.hasChildren(List(ce, cl, jd))
+  case class FamilyTree(familyMembers: List[Person])
 
-  println(s"List of ${gerard.name}'s' children")
-  println(gerard.children.map(_.name))
-  println(s"List of ${gerard.name}'s grandchildren")
-  println(gerard.grandchildren.map(_.name))
-  println(s"List of ${ce.name}'s' siblings")
-  println(ce.siblings.map(_.name))
-  println(s"List of ${gerard.name}'s' siblings")
-  println(gerard.siblings.map(_.name))
-  genevieve.siblings = List(Person("Michel"), Person("Francis"), Person("Agnes"))
-  println(Person("Agnes").siblings.map(_.name))
+  val gerard = Person("Gerard", null, null)
+  val ge = Person("Genevieve", null, null)
+  val ce = Person("Celine", ge, gerard)
+  val cl = Person("Claire", ge, gerard)
+  val jd = Person("Jean-Do", ge, gerard)
+  val pauline = Person("Pauline", Person("Martine", null, null), null)
+  val olivia = Person("Olivia", pauline, jd)
+  val andre = Person("Andre", pauline, jd)
+  val mael = Person("Mael", ce, Person("Franck", null, null))
+  val loick = Person("Loick", ce, Person("Franck", null, null))
+
+  println(s"${jd.name}'s father is called: ${jd.father.name}")
+  gerard.hasChildren(ge, List(ce, jd, cl))
+  println(s"${ge.name}'s children are called: ${ge.children.map(x => x.name).mkString(", ")}")
+  println(s"${jd.name}'s siblings are called: ${jd.siblings.map(x => x.name).mkString(", ")}")
+
+  println(s"${olivia.name}'s siblings are called: ${olivia.siblings.map(x => x.name).mkString(", ")}")
 }
