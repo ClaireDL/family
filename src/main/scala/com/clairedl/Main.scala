@@ -4,7 +4,8 @@ import scala.collection.mutable.ListBuffer
 
 object Main extends App {
 
-  case class Person(name: String, mother: Person, father: Person) {
+
+  case class Person(name: String, isMale: Boolean) {
     var children: ListBuffer[Person] = new ListBuffer[Person]()
 
     var siblings: ListBuffer[Person] = new ListBuffer[Person]()
@@ -19,27 +20,29 @@ object Main extends App {
       c
     }
 
-    var cousins: ListBuffer[Person] = {
-      new ListBuffer[Person]()
+    // var cousins: ListBuffer[Person] = {
+    //   new ListBuffer[Person]()
 
-    }
+    // }
   }
 
   case class FamilyTree(familyMembers: List[Person])
 
-  val gerard = Person("Gerard", null, null)
-  val ge = Person("Genevieve", null, null)
-  val ce = Person("Celine", ge, gerard)
-  val cl = Person("Claire", ge, gerard)
-  val jd = Person("Jean-Do", ge, gerard)
-  val pauline = Person("Pauline", Person("Martine", null, null), null)
-  val olivia = Person("Olivia", pauline, jd)
-  val andre = Person("Andre", pauline, jd)
-  val mael = Person("Mael", ce, Person("Franck", null, null))
-  val loick = Person("Loick", ce, Person("Franck", null, null))
-
-  println(s"${jd.name}'s father is called: ${jd.father.name}")
+  val gerard = Person("Gerard", true)
+  val ge = Person("Genevieve", false)
+  val ce = Person("Celine", false)
+  val cl = Person("Claire", false)
+  val jd = Person("Jean-Do", true)
   gerard.hasChildren(ge, List(ce, jd, cl))
+  val pauline = Person("Pauline", false)
+  val olivia = Person("Olivia", false)
+  val andre = Person("Andre", true)
+  jd.hasChildren(pauline, List(olivia, andre))
+  val mael = Person("Mael", true)
+  val loick = Person("Loick", true)
+
+  // println(s"${jd.name}'s father is called: ${jd.father.name}")
+
   println(s"${ge.name}'s children are called: ${ge.children.map(x => x.name).mkString(", ")}")
   println(s"${jd.name}'s siblings are called: ${jd.siblings.map(x => x.name).mkString(", ")}")
 
