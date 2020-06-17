@@ -7,13 +7,7 @@ object Main extends App {
   case class Person(name: String, mother: Person, father: Person) {
     var children: ListBuffer[Person] = new ListBuffer[Person]()
 
-    var siblings: ListBuffer[Person] = {
-      var sib = new ListBuffer[Person]()
-      // if ( mother.children.nonEmpty ) {
-      //   println(s"mother has children")
-      // }
-      sib
-    }
+    var siblings: ListBuffer[Person] = new ListBuffer[Person]()
 
     def hasChildren(otherParent: Person, c: List[Person]): List[Person] = {
       for ( child <- c ) {
