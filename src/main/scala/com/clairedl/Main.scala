@@ -4,29 +4,34 @@ import scala.collection.mutable.ListBuffer
 
 object Main extends App {
   class Person(val name: String, val father: Option[Person], val mother: Option[Person]) {
-    lazy val children = childrenTemp
-    private var childrenTemp = List[Person]()
+    def paternalGrandFather: Option[Person] = {
+      father.flatMap(x => x.father)
 
-    lazy val siblings = siblingsTemp
-    private var siblingsTemp = List[Person]()
+      // for {
+      //   x <- father
+      // } yield x.father
 
-    lazy val grandParents = grandParentsTemp
-    private var grandParentsTemp = List[Person]()
-
-    def setChildren(c: List[Person]): Unit = {
-      childrenTemp = c
+      // father match {
+      //   case Some(x) => x.father
+      //   case None => None
+      // }
     }
 
-    def setSiblings: Unit = {
-      val allSiblings = father.get.children
-      for (s <- allSiblings) {
-        val result = allSiblings.filter(x => x != s)
-        s.siblingsTemp = result
-      }
+    def fatherOf(parent: Option[Person]): Option[Person] = {
+      parent.flatMap(x => x.father)
     }
 
-    def setParents: Unit = {
+    def motherOf(parent: Option[Person]): Option[Person] = {
+      parent.flatMap(x => x.mother)
+    }
 
+    def grandParents: List[Option[Person]] = {
+      fatherOf(father) :: motherOf(father) :: fatherOf(mother) :: motherOf(mother) :: Nil
+    }
+
+    def getGrandParent(parent: Option[Person], grandParentIsMale: Boolean): Option[Person] = {
+      if (grandParentIsMale) (parent.flatMap(x => x.father))
+      else (parent.flatMap(x => x.mother))
     }
   }
 
@@ -35,21 +40,10 @@ object Main extends App {
   val celine = new Person("Celine", Some(gerard), Some(genevieve))
   val claire = new Person("Claire", Some(gerard), Some(genevieve))
   val jeando = new Person("Jean-Dominique", Some(gerard), Some(genevieve))
-  gerard.setChildren((List(celine, claire, jeando)))
   val franck = new Person("Franck", None, Some(new Person("Francoise", None, None)))
   val mael = new Person("Mael", Some(franck), Some(celine))
   val loick = new Person("Loick", Some(franck), Some(celine))
 
-  celine.setChildren(List(mael, loick))
-  celine.setSiblings
-  println(s"${celine.name}'s father is called ${celine.father.get.name}")
-  println(s"${celine.name}'s mother is called ${celine.mother.get.name}")
-  println(s"${celine.name}'s children are:")
-  for (child <- celine.children) println(child.name)
-  println(s"${claire.name}'s siblings are:")
-  for (sibling <- claire.siblings) println(sibling.name)
-  println(s"${celine.name}'s siblings are:")
-  for (sibling <- celine.siblings) println(sibling.name)
-
-  mael.setGrandParents
+  val grandParents = loick.grandParents
+  for (grandParent <- grandParents) grandParent.map(x => println(x.name))
 }
