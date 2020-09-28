@@ -17,11 +17,12 @@ object Main extends App {
       // }
     }
 
-    def fatherOf(parent: Option[Person]): Option[Person] = {
+    // Solution #1
+    protected def fatherOf(parent: Option[Person]): Option[Person] = {
       parent.flatMap(x => x.father)
     }
 
-    def motherOf(parent: Option[Person]): Option[Person] = {
+    protected def motherOf(parent: Option[Person]): Option[Person] = {
       parent.flatMap(x => x.mother)
     }
 
@@ -29,9 +30,34 @@ object Main extends App {
       fatherOf(father) :: motherOf(father) :: fatherOf(mother) :: motherOf(mother) :: Nil
     }
 
-    def getGrandParent(parent: Option[Person], grandParentIsMale: Boolean): Option[Person] = {
+    // Solution #2
+    def grandParent(parent: Option[Person], grandParentIsMale: Boolean): Option[Person] = {
       if (grandParentIsMale) (parent.flatMap(x => x.father))
       else (parent.flatMap(x => x.mother))
+    }
+
+    def grandParents2: List[Option[Person]] = {
+      grandParent(father, true) ::
+      grandParent(father, false) ::
+      grandParent(mother, true) ::
+      grandParent(mother, false) ::
+      Nil
+    }
+
+    var children = List[Person]()
+
+    def children(c: List[Person]): Unit = {
+      children = c
+      identifySiblings(c)
+    }
+
+    var siblings = List[Person]()
+
+    def identifySiblings(children: List[Person]): Unit = {
+      if (children.length > 1) {
+        for (person <- children) (person.siblings = children.filter(x => x != person))
+      }
+
     }
   }
 
@@ -44,6 +70,19 @@ object Main extends App {
   val mael = new Person("Mael", Some(franck), Some(celine))
   val loick = new Person("Loick", Some(franck), Some(celine))
 
+  println(s"These are the grandparents of ${loick.name}:")
   val grandParents = loick.grandParents
   for (grandParent <- grandParents) grandParent.map(x => println(x.name))
+  val grandParents2 = loick.grandParents2
+  for (grandParent <- grandParents2) grandParent.map(x => println(x.name))
+
+  gerard.children(List(celine, claire, jeando))
+  genevieve.children = gerard.children
+  println(s"These are the children of ${genevieve.name}:")
+  println(genevieve.children.map(x => x.name))
+  celine.children(List(mael, loick))
+  franck.children = celine.children
+
+  println(claire.siblings.map(x => x.name))
+
 }
