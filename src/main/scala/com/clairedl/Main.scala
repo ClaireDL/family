@@ -4,10 +4,11 @@ import scala.collection.mutable.ListBuffer
 
 object Main extends App {
   class Person(val name: String, val father: Option[Person], val mother: Option[Person]) {
-    def parents: List[Person] = List(father.get, mother.get)
+
+    def parents: List[Person] = List(father, mother).flatten
 
     def paternalGrandFather: Option[Person] = {
-      father.flatMap(x => x.father)
+      father.flatMap(_.father)
 
       // for {
       //   x <- father
@@ -19,53 +20,46 @@ object Main extends App {
       // }
     }
 
-    // Solution #1
     private def fatherOf(parent: Option[Person]): Option[Person] = {
-      parent.flatMap(x => x.father)
+      parent.flatMap(_.father)
     }
 
     private def motherOf(parent: Option[Person]): Option[Person] = {
-      parent.flatMap(x => x.mother)
+      parent.flatMap(_.mother)
     }
 
-    def grandParents: List[Option[Person]] = {
-      fatherOf(father) :: motherOf(father) :: fatherOf(mother) :: motherOf(mother) :: Nil
-    }
+    // def grandParents: List[Option[Person]] = {
+    //   fatherOf(father) :: motherOf(father) :: fatherOf(mother) :: motherOf(mother) :: Nil
+    // }
 
-    def grandParent(parent: Option[Person], grandParentIsMale: Boolean): Option[Person] = {
-      if (grandParentIsMale) (parent.flatMap(x => x.father))
-      else (parent.flatMap(x => x.mother))
-    }
+    val grandParents: List[Person] =
+      List(fatherOf(father), motherOf(father), fatherOf(mother), motherOf(mother)).flatten
 
-    // Solution #2
-    def grandParents2: List[Option[Person]] = {
-      grandParent(father, true) ::
-      grandParent(father, false) ::
-      grandParent(mother, true) ::
-      grandParent(mother, false) ::
-      Nil
-    }
+    def grandChildren: List[Person] = children.flatMap(_.children)
 
-    def grandChildren: List[Person] = children.flatMap(x => x.children)
+    private var _children: List[Person] = List.empty
 
-    var children = List[Person]()
+    // Getter method
+    def children: List[Person] = this._children
 
-    def children(c: List[Person]): Unit = {
-      children = c
+    // Setter method
+    def setChildren(c: List[Person]): Unit = {
+      this._children = c
       identifySiblings(c)
     }
 
-    var siblings = List[Person]()
+    private var _siblings: List[Person] = List.empty
 
-    private def identifySiblings(children: List[Person]): Unit = {
-      if (children.length > 1) {
-        for (person <- children) (person.siblings = children.filter(x => x != person))
+    def siblings: List[Person] = this._siblings
+
+    private def identifySiblings(children: List[Person]): Unit =
+      for (child <- children) {
+        child._siblings = children.filter(_ != child)
       }
-    }
 
-    def unclesAndAunts: List[Person] = parents.flatMap(x => x.siblings)
+    def unclesAndAunts: List[Person] = parents.flatMap(_.siblings)
 
-    def cousins: List[Person] = unclesAndAunts.flatMap((x => x.children))
+    def cousins: List[Person] = unclesAndAunts.flatMap(_.children)
   }
 
   // Family members
@@ -80,42 +74,39 @@ object Main extends App {
   val olivia = new Person("Olivia", Some(jeando), Some(new Person("Pauline", None, None)))
   val andre = new Person("Andre", Some(jeando), Some(new Person("Pauline", None, None)))
 
-  // Establishing parent-child relationship
-  gerard.children(List(celine, claire, jeando))
-  genevieve.children = gerard.children
-  celine.children(List(mael, loick))
-  franck.children = celine.children
-  jeando.children(List(olivia, andre))
+  // Establishing parent-child relationships
+  gerard.setChildren(List(celine, claire, jeando))
+  genevieve.setChildren(gerard.children)
+  celine.setChildren(List(mael, loick))
+  franck.setChildren(celine.children)
+  jeando.setChildren(List(olivia, andre))
 
   // Other relationships
-  // Grandparents, using 2 methods
+  // Grandparents
   println(s"These are the grandparents of ${loick.name}:")
-  val grandParents = loick.grandParents
-  for (grandParent <- grandParents) grandParent.map(x => println(x.name))
-  val grandParents2 = loick.grandParents2
-  for (grandParent <- grandParents2) grandParent.map(x => println(x.name))
+  println(loick.grandParents.map(_.name))
 
   // Children
   println(s"These are the children of ${genevieve.name}:")
-  println(genevieve.children.map(x => x.name))
+  println(genevieve.children.map(_.name))
 
   // Grandchildren
   println(s"These are the grandchildren of ${gerard.name}:")
-  println(gerard.grandChildren.map(x => x.name))
+  println(gerard.grandChildren.map(_.name))
 
   // Siblings
   println(s"These are the siblings of ${claire.name}:")
-  println(claire.siblings.map(x => x.name))
+  println(claire.siblings.map(_.name))
 
   // Parents
   println(s"These are the parents of ${mael.name}:")
-  println(mael.parents.map(x => x.name))
+  println(mael.parents.map(_.name))
 
   // Uncles and aunts
   println(s"These are the uncles and aunts of ${mael.name}:")
-  println(mael.unclesAndAunts.map(x => x.name))
+  println(mael.unclesAndAunts.map(_.name))
 
   // Cousins
   println(s"These are the cousins of ${mael.name}:")
-  println(mael.cousins.map(x => x.name))
+  println(mael.cousins.map(_.name))
 }
