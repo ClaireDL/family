@@ -7,26 +7,11 @@ object Main extends App {
 
     def parents: List[Person] = List(father, mother).flatten
 
-    def paternalGrandFather: Option[Person] = {
-      father.flatMap(_.father)
+    def paternalGrandFather: Option[Person] = father.flatMap(_.father)
 
-      // for {
-      //   x <- father
-      // } yield x.father
+    private def fatherOf(parent: Option[Person]): Option[Person] = parent.flatMap(_.father)
 
-      // father match {
-      //   case Some(x) => x.father
-      //   case None => None
-      // }
-    }
-
-    private def fatherOf(parent: Option[Person]): Option[Person] = {
-      parent.flatMap(_.father)
-    }
-
-    private def motherOf(parent: Option[Person]): Option[Person] = {
-      parent.flatMap(_.mother)
-    }
+    private def motherOf(parent: Option[Person]): Option[Person] = parent.flatMap(_.mother)
 
     // def grandParents: List[Option[Person]] = {
     //   fatherOf(father) :: motherOf(father) :: fatherOf(mother) :: motherOf(mother) :: Nil
@@ -40,22 +25,24 @@ object Main extends App {
     private var _children: List[Person] = List.empty
 
     // Getter method
-    def children: List[Person] = this._children
+    def children: List[Person] = _children
 
     // Setter method
-    def setChildren(c: List[Person]): Unit = {
-      this._children = c
+    def children_=(c: List[Person]): Unit = {
       identifySiblings(c)
+      _children = c
     }
 
     private var _siblings: List[Person] = List.empty
 
-    def siblings: List[Person] = this._siblings
+    // Getter method
+    def siblings: List[Person] = _siblings
 
-    private def identifySiblings(children: List[Person]): Unit =
+    private def identifySiblings(children: List[Person]): Unit = {
       for (child <- children) {
         child._siblings = children.filter(_ != child)
       }
+    }
 
     def unclesAndAunts: List[Person] = parents.flatMap(_.siblings)
 
@@ -75,11 +62,11 @@ object Main extends App {
   val andre = new Person("Andre", Some(jeando), Some(new Person("Pauline", None, None)))
 
   // Establishing parent-child relationships
-  gerard.setChildren(List(celine, claire, jeando))
-  genevieve.setChildren(gerard.children)
-  celine.setChildren(List(mael, loick))
-  franck.setChildren(celine.children)
-  jeando.setChildren(List(olivia, andre))
+  gerard.children = (List(celine, claire, jeando))
+  genevieve.children = gerard.children
+  celine.children = (List(mael, loick))
+  franck.children = celine.children
+  jeando.children = (List(olivia, andre))
 
   // Other relationships
   // Grandparents
